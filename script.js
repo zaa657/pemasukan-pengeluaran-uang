@@ -3,6 +3,7 @@ const titleInput = document.getElementById("title");
 const amountInput = document.getElementById("amount");
 const typeInput = document.getElementById("type");
 const categoryInput = document.getElementById("category");
+const paymentMethodInput = document.getElementById("paymentMethod");
 const dateInput = document.getElementById("date");
 const noteInput = document.getElementById("note");
 const transactionList = document.getElementById("transactionList");
@@ -53,20 +54,22 @@ function renderTransactions() {
 
   const filteredTransactions = transactions.filter((item) => {
     const matchType = selectedType === "all" || item.type === selectedType;
+
     const matchSearch =
       item.title.toLowerCase().includes(keyword) ||
       item.category.toLowerCase().includes(keyword) ||
-      item.note.toLowerCase().includes(keyword);
+      item.note.toLowerCase().includes(keyword) ||
+      (item.paymentMethod || "").toLowerCase().includes(keyword);
 
     return matchType && matchSearch;
   });
 
   if (filteredTransactions.length === 0) {
     transactionList.innerHTML = `
-          <tr>
-            <td colspan="6" class="empty">Belum ada transaksi.</td>
-          </tr>
-        `;
+      <tr>
+        <td colspan="7" class="empty">Belum ada transaksi.</td>
+      </tr>
+    `;
     renderSummary();
     return;
   }
@@ -77,22 +80,23 @@ function renderTransactions() {
       const row = document.createElement("tr");
 
       row.innerHTML = `
-            <td>${item.date}</td>
-            <td>
-              <strong>${item.title}</strong><br />
-              <small>${item.note || "Tidak ada catatan"}</small>
-            </td>
-            <td>${item.category}</td>
-            <td>
-              <span class="badge ${item.type === "income" ? "badge-income" : "badge-expense"}">
-                ${item.type === "income" ? "Pemasukan" : "Pengeluaran"}
-              </span>
-            </td>
-            <td>${formatRupiah(item.amount)}</td>
-            <td>
-              <button class="btn-danger" onclick="deleteTransaction(${item.id})">Hapus</button>
-            </td>
-          `;
+        <td>${item.date}</td>
+        <td>
+          <strong>${item.title}</strong><br />
+          <small>${item.note || "Tidak ada catatan"}</small>
+        </td>
+        <td>${item.category}</td>
+        <td>${item.paymentMethod || "-"}</td>
+        <td>
+          <span class="badge ${item.type === "income" ? "badge-income" : "badge-expense"}">
+            ${item.type === "income" ? "Pemasukan" : "Pengeluaran"}
+          </span>
+        </td>
+        <td>${formatRupiah(item.amount)}</td>
+        <td>
+          <button class="btn-danger" onclick="deleteTransaction(${item.id})">Hapus</button>
+        </td>
+      `;
 
       transactionList.appendChild(row);
     });
@@ -109,6 +113,7 @@ form.addEventListener("submit", function (event) {
     amount: Number(amountInput.value),
     type: typeInput.value,
     category: categoryInput.value.trim(),
+    paymentMethod: paymentMethodInput.value,
     date: dateInput.value,
     note: noteInput.value.trim(),
   };
